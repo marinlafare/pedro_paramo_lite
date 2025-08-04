@@ -1,0 +1,32 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: pedro_paramo_db
+    environment:
+      POSTGRES_DB: pedro_paramo_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pedro_paramo_api/database/source:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pedro_paramo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: pedro_paramo_api
+    command: ./entrypoint.sh
+    ports:
+      - "9000:9000"
+    environment:
+      # CHANGED: Added '+asyncpg' to specify the asynchronous driver
+      DATABASE_URL: postgresql+asyncpg://postgres:password@db/pedro_paramo_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

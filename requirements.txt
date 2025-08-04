@@ -1,0 +1,9 @@
+sqlalchemy
+asyncpg
+pgvector
+numpy
+uvicorn
+fastapi
+psycopg2-binary
+asyncpg
+python-dotenv
